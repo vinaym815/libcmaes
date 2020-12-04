@@ -364,6 +364,13 @@ namespace libcmaes
     {
       _xmean = xmean;
     }
+
+
+    // Used to insert covriance matrix into solution for restart
+    inline void set_cov(const dMat &cov)
+    {
+      _cov = cov;
+    }
     
     /**
      * \brief returns current optimization status.

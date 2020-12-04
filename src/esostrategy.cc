@@ -27,6 +27,8 @@
 #include <iostream>
 #include <numeric>
 #include "llogging.h"
+#include <vector>
+#include <future>
 
 #ifdef HAVE_DEBUG
 #include <chrono>
@@ -89,17 +91,29 @@ namespace libcmaes
     std::chrono::time_point<std::chrono::system_clock> tstart = std::chrono::system_clock::now();
 #endif
     // one candidate per row.
-#pragma omp parallel for if (_parameters._mt_feval)
-    for (int r=0;r<candidates.cols();r++)
-      {
-	_solutions._candidates.at(r).set_x(candidates.col(r));
-	_solutions._candidates.at(r).set_id(r);
-	if (phenocandidates.size())
-	  _solutions._candidates.at(r).set_fvalue(_func(phenocandidates.col(r).data(),candidates.rows()));
-	else _solutions._candidates.at(r).set_fvalue(_func(candidates.col(r).data(),candidates.rows()));
-	
-	//std::cerr << "candidate x: " << _solutions._candidates.at(r)._x.transpose() << std::endl;
-      }
+	std::vector<int> members(candidates.cols());
+    std::iota(std::begin(members), std::end(members), 0);
+    std::vector<std::future<void>> futuresVec;
+
+    for (int member : members)
+    {
+      futuresVec.push_back( std::async(
+        [&](int r){
+          _solutions._candidates.at(r).set_x(candidates.col(r));
+          _solutions._candidates.at(r).set_id(r);
+          if (phenocandidates.size())
+            _solutions._candidates.at(r).set_fvalue(_func(phenocandidates.col(r).data(),candidates.rows()));
+          else _solutions._candidates.at(r).set_fvalue(_func(candidates.col(r).data(),candidates.rows()));
+    	    //std::cerr << "candidate x: " << _solutions._candidates.at(r)._x.transpose() << std::endl;
+        } , member
+      )
+      );
+    }
+
+    for(auto &e : futuresVec){
+      e.get();
+    }
+
     int nfcalls = candidates.cols();
     
     // evaluation step of uncertainty handling scheme.
@@ -172,7 +186,6 @@ namespace libcmaes
     dVec vgradf(_parameters._dim);
     dVec epsilon = 1e-8 * (dVec::Constant(_parameters._dim,1.0) + x.cwiseAbs());
     double fx = _func(x.data(),_parameters._dim);
-#pragma omp parallel for if (_parameters._mt_feval)
     for (int i=0;i<_parameters._dim;i++)
       {
 	dVec ei1 = x;

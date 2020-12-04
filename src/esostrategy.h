@@ -155,7 +155,7 @@ namespace libcmaes
     {
       _parameters.set_x0(sol.best_candidate().get_x_dvec());
       _solutions = sol;
-      _solutions.reset();
+      //_solutions.reset();
     }
 
     /**

@@ -10,7 +10,7 @@ list (APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
 set (LIBCMAES_TOP_LEVEL NO)
 if (${PROJECT_SOURCE_DIR} STREQUAL ${CMAKE_SOURCE_DIR})
-  set (LIBCMAES_TOP_LEVEL YES)
+  set (LIBCMAES_TOP_LEVEL NO)
 endif ()
 
 # ---------- options ----------
@@ -18,7 +18,7 @@ option (LIBCMAES_BUILD_SHARED_LIBS "Build libcmaes as a shared library" ON)
 option (LIBCMAES_BUILD_PYTHON "build python bindings" OFF)
 option (LIBCMAES_BUILD_TESTS "build tests" OFF)
 option (LIBCMAES_BUILD_EXAMPLES "build examples" ${LIBCMAES_TOP_LEVEL})
-option (LIBCMAES_USE_OPENMP "Use OpenMP for multithreading" ON)
+option (LIBCMAES_USE_OPENMP "Use OpenMP for multithreading" OFF)
 option (LIBCMAES_ENABLE_SURROG "support for surrogates" ON)
 
 # Offer the user the choice of overriding the installation directories
@@ -61,18 +61,18 @@ check_include_file (sys/stat.h HAVE_SYS_STAT_H)
 # ---------- dependencies ----------
 find_package (Eigen3 3.0.0 REQUIRED)
 
-if (LIBCMAES_USE_OPENMP)
-  find_package (OpenMP)
-  if (NOT TARGET OpenMP::OpenMP_CXX AND OpenMP_FOUND)
-    find_package (Threads REQUIRED)
-    add_library (OpenMP::OpenMP_CXX IMPORTED INTERFACE)
-    set_property (TARGET OpenMP::OpenMP_CXX PROPERTY INTERFACE_COMPILE_OPTIONS
-                                                     ${OpenMP_CXX_FLAGS})
-    set_property (
-      TARGET OpenMP::OpenMP_CXX PROPERTY INTERFACE_LINK_LIBRARIES
-                                         ${OpenMP_CXX_FLAGS} Threads::Threads)
-  endif ()
-endif ()
+##if (LIBCMAES_USE_OPENMP)
+##  find_package (OpenMP)
+##  if (NOT TARGET OpenMP::OpenMP_CXX AND OpenMP_FOUND)
+##    find_package (Threads REQUIRED)
+##    add_library (OpenMP::OpenMP_CXX IMPORTED INTERFACE)
+##    set_property (TARGET OpenMP::OpenMP_CXX PROPERTY INTERFACE_COMPILE_OPTIONS
+##                                                     ${OpenMP_CXX_FLAGS})
+##    set_property (
+##      TARGET OpenMP::OpenMP_CXX PROPERTY INTERFACE_LINK_LIBRARIES
+##                                         ${OpenMP_CXX_FLAGS} Threads::Threads)
+##  endif ()
+##endif ()
 
 if (LIBCMAES_BUILD_PYTHON)
   find_package (PythonInterp)
@@ -150,17 +150,17 @@ endif ()
 
 # ---------- subdirectories ----------
 add_subdirectory (src)
-if (LIBCMAES_BUILD_EXAMPLES)
-  add_subdirectory (examples)
-endif ()
-if (LIBCMAES_BUILD_TESTS)
-  enable_testing ()
-  add_subdirectory (tests)
-endif ()
-
-if (Boost_FOUND AND NumPy_FOUND)
-  add_subdirectory (python)
-endif ()
+##if (LIBCMAES_BUILD_EXAMPLES)
+##  add_subdirectory (examples)
+##endif ()
+##if (LIBCMAES_BUILD_TESTS)
+##  enable_testing ()
+##  add_subdirectory (tests)
+##endif ()
+##
+##if (Boost_FOUND AND NumPy_FOUND)
+##  add_subdirectory (python)
+##endif ()
 
 # ------------ export ------------
 add_library (libcmaes::cmaes ALIAS cmaes)

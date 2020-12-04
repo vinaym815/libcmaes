@@ -191,7 +191,6 @@ class RankingSVM
 	encode(x_train,covinv,xmean);
 	encode(x_test,covinv,xmean);
       }
-#pragma omp parallel for
     for (int i=0;i<x_test.cols();i++)
       {
 	dVec Kvals(x_train.cols());
@@ -237,7 +236,6 @@ class RankingSVM
   {
     _kernel.init(x);
     _K = dMat::Zero(x.cols(),x.cols());
-#pragma omp parallel for
       for (int i=0;i<_K.rows();i++)
 	for (int j=i;j<_K.cols();j++)
 	  _K(i,j)=_K(j,i)=_kernel.K(x.col(i),x.col(j));
@@ -258,9 +256,7 @@ class RankingSVM
     // initialization of temporary variables
     dVec sum_alphas = dVec::Zero(_dKij.cols());
     dMat div_dKij = dMat::Zero(_dKij.rows(),_dKij.cols());
-#pragma omp parallel
     {
-#pragma omp for
       for (int i=0;i<_dKij.rows();i++)
 	{
 	  for (int j=0;j<_dKij.cols();j++)
@@ -270,7 +266,6 @@ class RankingSVM
 	  double fact = _udist(_rng);
 	  _alpha(i) = _C(i) * (0.95 + 0.05*fact);
 	}
-#pragma omp for
       for (int i=0;i<_dKij.rows();i++)
 	{
 	  double sum_alpha = 0.0;
