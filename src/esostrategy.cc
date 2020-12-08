@@ -91,13 +91,18 @@ namespace libcmaes
     std::chrono::time_point<std::chrono::system_clock> tstart = std::chrono::system_clock::now();
 #endif
     // one candidate per row.
-	std::vector<int> members(candidates.cols());
+    std::launch policy;
+    if(_parameters._mt_feval)
+      policy = std::launch::async;
+    else policy = std::launch::deferred;
+
+	  std::vector<int> members(candidates.cols());
     std::iota(std::begin(members), std::end(members), 0);
     std::vector<std::future<void>> futuresVec;
 
     for (int member : members)
     {
-      futuresVec.push_back( std::async(
+      futuresVec.push_back( std::async(policy,
         [&](int r){
           _solutions._candidates.at(r).set_x(candidates.col(r));
           _solutions._candidates.at(r).set_id(r);
