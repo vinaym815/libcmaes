@@ -40,6 +40,7 @@ namespace libcmaes
    */
   class CMAES_EXPORT CMASolutions
   {
+    template <class U, class V> friend class customStrategy;
     template <class U, class V> friend class CMAStrategy;
     template <class U, class V, class W> friend class ESOptimizer;
     template <class U, class V, class W> friend class ESOStrategy;
